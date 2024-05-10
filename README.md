@@ -9,6 +9,10 @@ In order to get most of the excepted data, I needed to use VPN (Germany)\
 To run the example on index.js execute this command `npm run scraper`.\
 When scraper finish the job, output json file will be on ./output/index.js
 
+## NOTES
+Class from Crawl-E framework `JsonFileWriter`, I think has a limitation, since it cannot save all items. Please use _saveItems() function as an alternative to save the file\
+
+
 ## Reference
 
 * `Collection/s`   Is a list of containers, eg. collection of movies, collection of tv show. Collection can be a list as well.

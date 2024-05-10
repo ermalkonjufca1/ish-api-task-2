@@ -1,4 +1,5 @@
 const axios = require('axios');
+const fs = require('fs').promises;
 const userAgent = require('./userAgents.js');
 const HTMLParser = require('./htmlParser.js');
 const { DefaultContext, DefaultLogger, DefaultRequestMaker, JsonFileWriter } = require('crawl-e');
@@ -84,6 +85,21 @@ module.exports = class AmazonScraper {
     }
 
     /**
+     * Funtion helper to pass only items with id's and exclude items that are not movies or tv shows
+     * @param {array} entities 
+     * @returns {array} - formatted data
+     */
+    parseItems(entities) {
+        const data = [];
+
+        for (let i = 0; i < entities.length; i++) {
+            (entities[i]?.titleID !== undefined) && data.push(this.parseItem(entities[i]));
+        }
+
+        return data;
+    }
+
+    /**
      * Collect all items (movies/tv shows) of one container
      * Is the same as scrolling horizontally (sliding) the container or carousel on UI
      * @param {object} parentQP - parent query parameters
@@ -102,7 +118,7 @@ module.exports = class AmazonScraper {
             })
             if (res.status !== 200) throw Error('Res status is not 200');
 
-            data._items = res.data.entities.map(entity => this.parseItem(entity));
+            data._items = this.parseItems(res.data.entities);
             data.hasMoreItems = res.data.hasMoreItems;
             data._pagination = res.data.pagination;
         } catch (e) {
@@ -110,7 +126,6 @@ module.exports = class AmazonScraper {
         }
         return data;
     }
-
 
     /**
      * Crawl all items that are on containers (passed parameter), usually we have 6 containers by default
@@ -125,7 +140,7 @@ module.exports = class AmazonScraper {
             console.log(`For every part of bunch containers we gonna get every item on them, total containers on this run: ${containers.length}`);
             for (let i = 0; i < containers.length; i++) {
                 console.log(`Total estimation on this container is: ${containers[i].estimatedTotal}`)
-                this.items.push(...containers[i].entities.map(entity => this.parseItem(entity)));
+                this.items.push(...this.parseItems(containers[i].entities));
                 let hasPagination = containers[i]?.paginationTargetId ? true : false;
 
                 let pagination = null;
@@ -199,6 +214,28 @@ module.exports = class AmazonScraper {
     }
 
     /**
+   * Save Items collected on file using crawl-e framework, into a folder called output on rootDir
+     */
+    async _saveItems() {
+        try {
+            console.log('Saving items...');
+
+            try {
+                await fs.mkdir(folderName);
+            } catch (error) {
+                if (error.code !== 'EEXIST') {
+                    throw error;
+                }
+            }
+            await fs.writeFile('../output/index.json', JSON.stringify(this.items, null, 2));
+
+            console.log(`Items has been saved successfully`);
+        } catch (e) {
+            console.log('Error while saving file', e);
+        }
+    }
+
+    /**
      * crawl Collections function
      * Firstly we make a request to get lists objects with url and name (movies & tv shows)
      * For every list scraped, we get starter containers and we collect items that are there, these containers has paginations horizontally, so we need to slide them like on UI until we have data
@@ -218,13 +255,15 @@ module.exports = class AmazonScraper {
 
                 let hasPagination = pagination ? true : false;
                 while (hasPagination) {
-                    console.log(`The list ${list[i].name} (${list[i].url}) has pagination vertically, we gonna continue collection containers until there is no more!, Collection size until now: ${this.items.length}`)
+                    console.log(`The list ${list[i].name} (${list[i].url}) has pagination vertically, we gonna continue collection containers until there is no more!, Items size until now: ${this.items.length}`)
                     const { _containers, _pagination } = await this.collectContainers(pagination.queryParameters);
                     await this.crawlCollectionItems(_containers, pagination.queryParameters);
                     pagination = _pagination
                     hasPagination = _pagination ? true : false;
                 }
             }
+
+            require('fs').writeFileSync('./test.json', JSON.stringify(this.items));
         } catch (e) {
             console.log('Error while crawling collection', e);
         }
