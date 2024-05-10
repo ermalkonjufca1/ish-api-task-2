@@ -221,13 +221,13 @@ module.exports = class AmazonScraper {
             console.log('Saving items...');
 
             try {
-                await fs.mkdir(folderName);
+                await fs.mkdir('output');
             } catch (error) {
                 if (error.code !== 'EEXIST') {
                     throw error;
                 }
             }
-            await fs.writeFile('../output/index.json', JSON.stringify(this.items, null, 2));
+            await fs.writeFile('output/index.json', JSON.stringify(this.items, null, 2));
 
             console.log(`Items has been saved successfully`);
         } catch (e) {
