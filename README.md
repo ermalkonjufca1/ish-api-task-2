@@ -5,6 +5,9 @@ Since the platform is built using React, not all the items are available to craw
 \
 So I followed up the way how amazon parses the items on their platform, and built a scraper which is on ./src/scraper.js. I used axios package to make requests with custom headers and parameters.\
 There is a list of user agents on ./src/userAgents.js as well, which I used to make requests to go through paginations.\
+In order to get most of the excepted data, I needed to use VPN (Germany)\
+To run the example on index.js execute this command `npm run scraper`.\
+When scraper finish the job, output json file will be on ./output/index.js
 
 ## Reference
 
