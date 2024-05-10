@@ -21,7 +21,8 @@ module.exports = class AmazonScraper {
             'accept': 'application/json',
             'referer': 'https://www.amazon.de/gp/video/storefront/',
             'user-agent': userAgent.random(),
-            'x-requested-with': 'XMLHttpRequest'
+            'x-requested-with': 'XMLHttpRequest',
+            'viewport-width': '1920'
         };
     }
 
