@@ -5,9 +5,9 @@ const AmazonScraper = require('./scraper');
  */
 const worker = async () => {
     try {
-        const crawler = new AmazonScraper();
-        await crawler.crawlCollections();
-        await crawler.saveItems();
+        const scraper = new AmazonScraper();
+        await scraper.crawlCollections();
+        await scraper.saveItems();
     } catch (e) {
         console.log("Error while scraping", e);
     }
