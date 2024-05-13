@@ -262,8 +262,6 @@ module.exports = class AmazonScraper {
                     hasPagination = _pagination ? true : false;
                 }
             }
-
-            require('fs').writeFileSync('./test.json', JSON.stringify(this.items));
         } catch (e) {
             console.log('Error while crawling collection', e);
         }
